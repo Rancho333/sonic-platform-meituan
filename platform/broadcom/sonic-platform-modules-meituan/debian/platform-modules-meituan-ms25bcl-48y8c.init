@@ -111,7 +111,7 @@ force-reload|restart)
         ;;
 
 *)
-        echo "Usage: /etc/init.d/platform-modules-b3010.init {start|stop}"
+        echo "Usage: /etc/init.d/platform-modules-meituan-ms25bcl-48y8c.init {start|stop}"
         exit 1
         ;;
 esac
