@@ -221,7 +221,11 @@ class Psu(PsuBase):
         Returns:
             string: Model/part number of device
         """
-        return self._api_helper.fru_decode_product_model(self._api_helper.read_eeprom_sysfs(self.eeprom_path, "eeprom"))
+        model = self._api_helper.fru_decode_product_model(self._api_helper.read_eeprom_sysfs(self.eeprom_path, "eeprom"))
+        if model.isspace():
+            return 'N/A'
+        else:
+            return model
 
     def get_serial(self):
         """
