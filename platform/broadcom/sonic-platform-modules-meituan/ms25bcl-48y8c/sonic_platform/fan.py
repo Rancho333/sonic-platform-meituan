@@ -173,7 +173,10 @@ class Fan(FanBase):
                 fan_path = os.path.join(
                     hwmon, fan_name.format(self.fan_index+1))
                 speed_rpm = self._api_helper.read_one_line_file(fan_path)
-                speed = int(float(speed_rpm) / PSU_FAN_MAX_RPM * 100)
+		if speed_rpm is None:
+		    return speed
+		else:
+                    speed = int(float(speed_rpm) / PSU_FAN_MAX_RPM * 100)
         else:
             speed_rpm = self.__read_fan_sysfs(
                 FAN_INPUT_SYSFS.format(FAN_MAPPING[self.index]['fan_idx']))

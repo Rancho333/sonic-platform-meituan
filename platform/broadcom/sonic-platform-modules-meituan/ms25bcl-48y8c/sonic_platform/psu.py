@@ -102,6 +102,8 @@ class Psu(PsuBase):
         psu_voltage = 0.0
         voltage_name = "in{}_input"
         voltage_label = "vout1"
+	if not self.get_status():
+	    return psu_voltage
 
         vout_label_path = self.__search_file_by_contain(
             self.hwmon_path, voltage_label, "in")
@@ -126,6 +128,9 @@ class Psu(PsuBase):
         current_name = "curr{}_input"
         current_label = "iout1"
 
+	if not self.get_status():
+	    return psu_current
+
         curr_label_path = self.__search_file_by_contain(
             self.hwmon_path, current_label, "cur")
         if curr_label_path:
@@ -148,6 +153,9 @@ class Psu(PsuBase):
         psu_power = 0.0
         power_name = "power{}_input"
         power_label = "pout1"
+
+	if not self.get_status():
+	    return psu_power
 
         pw_label_path = self.__search_file_by_contain(
             self.hwmon_path, power_label, "power")
