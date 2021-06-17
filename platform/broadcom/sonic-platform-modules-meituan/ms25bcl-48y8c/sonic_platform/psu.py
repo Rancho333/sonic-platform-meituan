@@ -43,6 +43,8 @@ PSU_INFO_MAPPING = {
 }
 PSU_STATUS_REGISTER = "0xA160"
 HWMON_PATH = "/sys/bus/i2c/devices/i2c-{0}/{0}-00{1}/hwmon"
+CREATE_HWMON = "echo dps1100 0x{1} > /sys/bus/i2c/devices/i2c-{0}/new_device"
+DELETE_HWMON = "echo 0x{1} > /sys/bus/i2c/devices/i2c-{0}/delete_device"
 I2C_PATH = "/sys/bus/i2c/devices/i2c-{0}/{0}-00{1}/"
 PSU_POWER_DIVIDER = 1000000
 PSU_VOLT_DIVIDER = 1000
@@ -91,6 +93,17 @@ class Psu(PsuBase):
             BASE_GETREG_PATH, PSU_STATUS_REGISTER)
         psu_status_bin = self._api_helper.hex_to_bin(psu_status_raw)
         return str(psu_status_bin)[2:][::-1]
+ 
+    # when system boot with only one psu, the other one's hwmon cant not create successfully
+    # when add power to this psu, we need create hwmon manually
+    def create_hwmon(self):
+	if os.path.exists(self.hwmon_path):
+	    return None
+	else:
+	    os.system(DELETE_HWMON.format(PSU_INFO_MAPPING[self.index]["i2c_num"],
+		PSU_INFO_MAPPING[self.index]["pmbus_reg"]))
+	    os.system(CREATE_HWMON.format(PSU_INFO_MAPPING[self.index]["i2c_num"],
+		PSU_INFO_MAPPING[self.index]["pmbus_reg"]))
 
     def get_voltage(self):
         """
@@ -105,6 +118,7 @@ class Psu(PsuBase):
 	if not self.get_status():
 	    return psu_voltage
 
+	self.create_hwmon()
         vout_label_path = self.__search_file_by_contain(
             self.hwmon_path, voltage_label, "in")
         if vout_label_path:
@@ -114,7 +128,10 @@ class Psu(PsuBase):
             vout_path = os.path.join(
                 dir_name, voltage_name.format(in_num))
             vout_val = self._api_helper.read_txt_file(vout_path)
-            psu_voltage = float(vout_val) / PSU_VOLT_DIVIDER
+	    if vout_val is None:
+		return psu_voltage
+	    else:
+                psu_voltage = float(vout_val) / PSU_VOLT_DIVIDER
 
         return psu_voltage
 
@@ -131,6 +148,7 @@ class Psu(PsuBase):
 	if not self.get_status():
 	    return psu_current
 
+	self.create_hwmon()
         curr_label_path = self.__search_file_by_contain(
             self.hwmon_path, current_label, "cur")
         if curr_label_path:
@@ -140,7 +158,10 @@ class Psu(PsuBase):
             cur_path = os.path.join(
                 dir_name, current_name.format(cur_num))
             cur_val = self._api_helper.read_txt_file(cur_path)
-            psu_current = float(cur_val) / PSU_CUR_DIVIDER
+	    if cur_val is None:
+		return psu_current
+	    else:
+                psu_current = float(cur_val) / PSU_CUR_DIVIDER
 
         return psu_current
 
@@ -157,6 +178,7 @@ class Psu(PsuBase):
 	if not self.get_status():
 	    return psu_power
 
+	self.create_hwmon()
         pw_label_path = self.__search_file_by_contain(
             self.hwmon_path, power_label, "power")
         if pw_label_path:
@@ -166,7 +188,10 @@ class Psu(PsuBase):
             pw_path = os.path.join(
                 dir_name, power_name.format(pw_num))
             pw_val = self._api_helper.read_txt_file(pw_path)
-            psu_power = float(pw_val) / PSU_POWER_DIVIDER
+	    if pw_val is None:
+		return psu_power
+	    else:
+                psu_power = float(pw_val) / PSU_POWER_DIVIDER
 
         return psu_power
 
