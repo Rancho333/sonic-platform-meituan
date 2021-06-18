@@ -9,6 +9,7 @@
 #############################################################################
 
 try:
+    import traceback
     import os
     import re
     import math
@@ -21,27 +22,24 @@ except ImportError as e:
 
 PSU_NUM_FAN = [1, 1]
 
-PRESENT_BIT = '0'
-POWER_OK_BIT = '1'
+PRESENT_BIT = '0x0'
+POWER_OK_BIT = '0x1'
 PSU_INFO_MAPPING = {
     0: {
         "name": "PSU-1",
-        "status": 0,
-        "present": 2,
+	"psu_idx": "r",
         "i2c_num": 76,
         "pmbus_reg": "59",
         "eeprom_reg": "51",
     },
     1: {
         "name": "PSU-2",
-        "status": 1,
-        "present": 3,
+	"psu_idx": "l",
         "i2c_num": 75,
         "pmbus_reg": "58",
         "eeprom_reg": "50"
     },
 }
-PSU_STATUS_REGISTER = "0xA160"
 HWMON_PATH = "/sys/bus/i2c/devices/i2c-{0}/{0}-00{1}/hwmon"
 CREATE_HWMON = "echo dps1100 0x{1} > /sys/bus/i2c/devices/i2c-{0}/new_device"
 DELETE_HWMON = "echo 0x{1} > /sys/bus/i2c/devices/i2c-{0}/delete_device"
@@ -49,11 +47,11 @@ I2C_PATH = "/sys/bus/i2c/devices/i2c-{0}/{0}-00{1}/"
 PSU_POWER_DIVIDER = 1000000
 PSU_VOLT_DIVIDER = 1000
 PSU_CUR_DIVIDER = 1000
+PSU_SYSFS_PATH = "/sys/bus/i2c/drivers/syscpld/70-000d"
+PSU_PRESENT_SYSFS = "psu_{}_present"
+PSU_STATUS_SYSFS = "psu_{}_status"
 
 PSU_MUX_HWMON_PATH = "/sys/bus/i2c/devices/i2c-68/i2c-{0}/{0}-00{1}/"
-BASE_CPLD_PLATFORM = "b3010.cpldb"
-BASE_GETREG_PATH = "/sys/devices/platform/{}/getreg".format(BASE_CPLD_PLATFORM)
-
 
 class Psu(PsuBase):
     """Platform-specific Psu class"""
@@ -88,11 +86,9 @@ class Psu(PsuBase):
                     return file_path
         return None
 
-    def __get_psu_status(self):
-        psu_status_raw = self._api_helper.get_register_value(
-            BASE_GETREG_PATH, PSU_STATUS_REGISTER)
-        psu_status_bin = self._api_helper.hex_to_bin(psu_status_raw)
-        return str(psu_status_bin)[2:][::-1]
+    def _read_psu_sysfs(self, sysfs_file):
+	sysfs_path = os.path.join(PSU_SYSFS_PATH, sysfs_file)
+	return self._api_helper.read_one_line_file(sysfs_path)
  
     # when system boot with only one psu, the other one's hwmon cant not create successfully
     # when add power to this psu, we need create hwmon manually
@@ -243,10 +239,8 @@ class Psu(PsuBase):
         Returns:
             bool: True if PSU is present, False if not
         """
-        psu_stat_raw = self.__get_psu_status()
-        psu_presence = psu_stat_raw[PSU_INFO_MAPPING[self.index]["present"]]
-
-        return psu_presence == PRESENT_BIT
+	psu_presence_bit_val = self._read_psu_sysfs(PSU_PRESENT_SYSFS.format(PSU_INFO_MAPPING[self.index]["psu_idx"]))
+	return True if psu_presence_bit_val == PRESENT_BIT else False
 
     def get_model(self):
         """
@@ -274,7 +268,5 @@ class Psu(PsuBase):
         Returns:
             A boolean value, True if device is operating properly, False if not
         """
-        psu_stat_raw = self.__get_psu_status()
-        psu_status = psu_stat_raw[PSU_INFO_MAPPING[self.index]["status"]]
-
-        return psu_status == POWER_OK_BIT
+	psu_status_bit_val = self._read_psu_sysfs(PSU_STATUS_SYSFS.format(PSU_INFO_MAPPING[self.index]["psu_idx"]))
+	return True if psu_status_bit_val == POWER_OK_BIT else False
