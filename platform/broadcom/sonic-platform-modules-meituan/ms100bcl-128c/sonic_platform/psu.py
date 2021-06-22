@@ -9,7 +9,6 @@
 #############################################################################
 
 try:
-    import traceback
     import os
     import re
     import math
@@ -20,38 +19,54 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
-PSU_NUM_FAN = [1, 1]
+PSU_NUM_FAN = [1, 1, 1, 1]
 
 PRESENT_BIT = '0x0'
 POWER_OK_BIT = '0x1'
+
+# in pannel num : 1-1    1-2    2-1     2-2
+# in cpld spec:   4      3      2       1
+# in this code:   1      2      3       4
 PSU_INFO_MAPPING = {
     0: {
         "name": "PSU-1",
-	"psu_idx": "r",
-        "i2c_num": 76,
-        "pmbus_reg": "59",
-        "eeprom_reg": "51",
+        "psu_idx": "4",
+        "i2c_num": 161,
+        "pmbus_reg": "58",
+        "eeprom_reg": "50",
     },
     1: {
         "name": "PSU-2",
-	"psu_idx": "l",
-        "i2c_num": 75,
+        "psu_idx": "3",
+        "i2c_num": 160,
         "pmbus_reg": "58",
         "eeprom_reg": "50"
     },
+    2: {
+        "name": "PSU-3",
+        "psu_idx": "2",
+        "i2c_num": 159,
+        "pmbus_reg": "58",
+        "eeprom_reg": "50"
+    },
+    3: {
+        "name": "PSU-4",
+        "psu_idx": "1",
+        "i2c_num": 158,
+        "pmbus_reg": "58",
+        "eeprom_reg": "50"
+    }
 }
 HWMON_PATH = "/sys/bus/i2c/devices/i2c-{0}/{0}-00{1}/hwmon"
+I2C_PATH = "/sys/bus/i2c/devices/i2c-{0}/{0}-00{1}/"
 CREATE_HWMON = "echo dps1100 0x{1} > /sys/bus/i2c/devices/i2c-{0}/new_device"
 DELETE_HWMON = "echo 0x{1} > /sys/bus/i2c/devices/i2c-{0}/delete_device"
-I2C_PATH = "/sys/bus/i2c/devices/i2c-{0}/{0}-00{1}/"
 PSU_POWER_DIVIDER = 1000000
 PSU_VOLT_DIVIDER = 1000
 PSU_CUR_DIVIDER = 1000
-PSU_SYSFS_PATH = "/sys/bus/i2c/drivers/syscpld/70-000d"
+PSU_SYSFS_PATH = "/sys/bus/i2c/drivers/syscpld/142-000d"
 PSU_PRESENT_SYSFS = "psu_{}_present"
 PSU_STATUS_SYSFS = "psu_{}_status"
-
-PSU_MUX_HWMON_PATH = "/sys/bus/i2c/devices/i2c-68/i2c-{0}/{0}-00{1}/"
 
 class Psu(PsuBase):
     """Platform-specific Psu class"""
@@ -82,17 +97,19 @@ class Psu(PsuBase):
         for dirpath, dirnames, files in os.walk(directory):
             for name in files:
                 file_path = os.path.join(dirpath, name)
-                if name.startswith(file_start) and search_str in self._api_helper.read_txt_file(file_path):
+                line_str = self._api_helper.read_txt_file(file_path)
+                if line_str is None:
+                    continue
+                if name.startswith(file_start) and search_str in line_str:
                     return file_path
         return None
 
     def _read_psu_sysfs(self, sysfs_file):
-	sysfs_path = os.path.join(PSU_SYSFS_PATH, sysfs_file)
-	return self._api_helper.read_one_line_file(sysfs_path)
- 
-    # when system boot with only one psu, the other one's hwmon cant not create successfully
+        sysfs_path = os.path.join(PSU_SYSFS_PATH, sysfs_file)
+        return self._api_helper.read_one_line_file(sysfs_path)
+
+    # when system boot with psus are not full, the remain psu's hwmon cant not create successfully
     # when add power to this psu, we need create hwmon manually
-    # in questone2f, suit for two situation which are psu not present and power loss
     def create_hwmon(self):
 	if os.path.exists(self.hwmon_path):
 	    return None
@@ -112,10 +129,10 @@ class Psu(PsuBase):
         psu_voltage = 0.0
         voltage_name = "in{}_input"
         voltage_label = "vout1"
-	if not self.get_status():
-	    return psu_voltage
+        if not self.get_status():
+            return psu_voltage
 
-	self.create_hwmon()
+        self.create_hwmon()
         vout_label_path = self.__search_file_by_contain(
             self.hwmon_path, voltage_label, "in")
         if vout_label_path:
@@ -125,10 +142,9 @@ class Psu(PsuBase):
             vout_path = os.path.join(
                 dir_name, voltage_name.format(in_num))
             vout_val = self._api_helper.read_txt_file(vout_path)
-	    if vout_val is None:
-		return psu_voltage
-	    else:
-                psu_voltage = float(vout_val) / PSU_VOLT_DIVIDER
+            if vout_val is None:
+                vout_val = 0
+            psu_voltage = float(vout_val) / PSU_VOLT_DIVIDER
 
         return psu_voltage
 
@@ -141,11 +157,10 @@ class Psu(PsuBase):
         psu_current = 0.0
         current_name = "curr{}_input"
         current_label = "iout1"
+        if not self.get_status():
+            return psu_current
 
-	if not self.get_status():
-	    return psu_current
-
-	self.create_hwmon()
+        self.create_hwmon()
         curr_label_path = self.__search_file_by_contain(
             self.hwmon_path, current_label, "cur")
         if curr_label_path:
@@ -155,10 +170,9 @@ class Psu(PsuBase):
             cur_path = os.path.join(
                 dir_name, current_name.format(cur_num))
             cur_val = self._api_helper.read_txt_file(cur_path)
-	    if cur_val is None:
-		return psu_current
-	    else:
-                psu_current = float(cur_val) / PSU_CUR_DIVIDER
+            if cur_val is None:
+                cur_val = 0
+            psu_current = float(cur_val) / PSU_CUR_DIVIDER
 
         return psu_current
 
@@ -171,11 +185,10 @@ class Psu(PsuBase):
         psu_power = 0.0
         power_name = "power{}_input"
         power_label = "pout1"
+        if not self.get_status():
+            return psu_power
 
-	if not self.get_status():
-	    return psu_power
-
-	self.create_hwmon()
+        self.create_hwmon()
         pw_label_path = self.__search_file_by_contain(
             self.hwmon_path, power_label, "power")
         if pw_label_path:
@@ -185,10 +198,9 @@ class Psu(PsuBase):
             pw_path = os.path.join(
                 dir_name, power_name.format(pw_num))
             pw_val = self._api_helper.read_txt_file(pw_path)
-	    if pw_val is None:
-		return psu_power
-	    else:
-                psu_power = float(pw_val) / PSU_POWER_DIVIDER
+            if pw_val is None:
+                pw_val = 0
+            psu_power = float(pw_val) / PSU_POWER_DIVIDER
 
         return psu_power
 
@@ -240,8 +252,8 @@ class Psu(PsuBase):
         Returns:
             bool: True if PSU is present, False if not
         """
-	psu_presence_bit_val = self._read_psu_sysfs(PSU_PRESENT_SYSFS.format(PSU_INFO_MAPPING[self.index]["psu_idx"]))
-	return True if psu_presence_bit_val == PRESENT_BIT else False
+        psu_presence_bit_val = self._read_psu_sysfs(PSU_PRESENT_SYSFS.format(PSU_INFO_MAPPING[self.index]["psu_idx"]))
+        return True if psu_presence_bit_val == PRESENT_BIT else False
 
     def get_model(self):
         """
@@ -268,6 +280,7 @@ class Psu(PsuBase):
         Retrieves the operational status of the device
         Returns:
             A boolean value, True if device is operating properly, False if not
+        In ivystone, if psu is not present, status register is status_ok(0x1).
         """
-	psu_status_bit_val = self._read_psu_sysfs(PSU_STATUS_SYSFS.format(PSU_INFO_MAPPING[self.index]["psu_idx"]))
-	return True if psu_status_bit_val == POWER_OK_BIT else False
+        psu_status_bit_val = self._read_psu_sysfs(PSU_STATUS_SYSFS.format(PSU_INFO_MAPPING[self.index]["psu_idx"]))
+        return True if psu_status_bit_val == POWER_OK_BIT and self.get_presence() else False

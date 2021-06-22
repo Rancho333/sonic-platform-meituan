@@ -4,7 +4,8 @@
 #define uchar unsigned char
 #define PATH_CACHE_SIZE 256
 
-struct sensor_info_sysfs {
+struct sensor_info_sysfs
+{
     const char *prefix;
     const char *suffix;
     uchar error_cnt;
@@ -22,7 +23,8 @@ struct sensor_info_sysfs {
     char path_cache[PATH_CACHE_SIZE];
 };
 
-struct fan_info_stu_sysfs {
+struct fan_info_stu_sysfs
+{
     const char *prefix;
     const char *front_fan_prefix;
     const char *rear_fan_prefix;
@@ -35,13 +37,15 @@ struct fan_info_stu_sysfs {
     uchar rear_failed;
 };
 
-struct psu_info_sysfs {
+struct psu_info_sysfs
+{
     char* sysfs_path;
     char* shutdown_path;
     int value_to_shutdown;
 };
 
-struct board_info_stu_sysfs {
+struct board_info_stu_sysfs
+{
     const char *name;
     uint slot_id;
     int correction;
@@ -54,7 +58,8 @@ struct board_info_stu_sysfs {
     struct sensor_info_sysfs *alarm;
 };
 
-struct fantray_info_stu_sysfs {
+struct fantray_info_stu_sysfs
+{
     const char *name;
     int present;
     int read_eeprom;
@@ -65,35 +70,41 @@ struct fantray_info_stu_sysfs {
     struct fan_info_stu_sysfs fan1;
 };
 
-struct rpm_to_pct_map {
+struct rpm_to_pct_map
+{
     uint pct;
     uint rpm;
 };
-struct dictionary_t {
+struct dictionary_t
+{
     char name[20];
     int value;
 };
 
-struct thermal_policy {
+struct thermal_policy
+{
     int pwm;
     int old_pwm;
     struct line_policy *line;
     // int (*calculate_pwm)(int cur_temp, int last_temp);
 };
 
-struct point {
+struct point
+{
     int temp;
     int speed;
 };
 
-struct line_policy {
+struct line_policy
+{
     int temp_hyst;
     struct point begin;
     struct point end;
     int (*get_speed)(struct sensor_info_sysfs *sensor, struct line_policy *line);
 };
 
-struct pid_policy {
+struct pid_policy
+{
     int cur_temp;
     int t1;
     int t2;

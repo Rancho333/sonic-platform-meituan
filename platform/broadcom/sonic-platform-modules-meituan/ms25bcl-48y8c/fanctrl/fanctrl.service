@@ -1,6 +1,6 @@
 [Unit]
 Description=Service for fancontrol
-After=platform-modules-meituan-ms25bcl-48y8c.service
+After=platform-modules-b3010.service
 
 [Service]
 Type=forking
