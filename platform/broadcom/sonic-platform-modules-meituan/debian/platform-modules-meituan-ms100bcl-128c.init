@@ -23,14 +23,12 @@ start)
         modprobe pmbus_core
         modprobe i2c-imc allow_unsafe_access=1
         modprobe baseboard_cpld
-        modprobe i2c-ocores-polling
         modprobe switchboard_fpga allow_unsafe_i2c_access=1
         modprobe mc24lc64t
         modprobe i2c_dev_sysfs
         modprobe syscpld
         modprobe fancpld
         modprobe jc42
-
         # remove 4.9.168 pmbus_core.ko and install 4.9.189 pmbus_core.ko #
         if [ -e $PMBUS_CORE_KO_PATH ]; then
             rm -fr $PMBUS_CORE_KO_PATH
@@ -99,9 +97,11 @@ start)
         echo lm75b 0x48 > /sys/bus/i2c/devices/i2c-9/new_device
         echo lm75b 0x49 > /sys/bus/i2c/devices/i2c-9/new_device
         echo max31730 0x4c > /sys/bus/i2c/devices/i2c-139/new_device
+        # add TMP275 on I2C_2
         echo lm75b 0x4d > /sys/bus/i2c/devices/i2c-139/new_device
         echo lm75b 0x4e > /sys/bus/i2c/devices/i2c-139/new_device
         echo lm75b 0x4f > /sys/bus/i2c/devices/i2c-139/new_device
+        # add LM75B
         echo lm75b 0x48 > /sys/bus/i2c/devices/i2c-150/new_device
         echo lm75b 0x49 > /sys/bus/i2c/devices/i2c-150/new_device
         echo lm75b 0x48 > /sys/bus/i2c/devices/i2c-151/new_device
@@ -145,25 +145,25 @@ start)
         echo 24lc64t 0x52 > /sys/bus/i2c/devices/i2c-167/new_device
 
         # populate DC/DC regulator #
-        echo ir38062 0x12 > /sys/bus/i2c/devices/i2c-143/new_device
-        echo ir3584 0x28 > /sys/bus/i2c/devices/i2c-174/new_device
-        echo ir38062 0x19 > /sys/bus/i2c/devices/i2c-174/new_device
+        echo ir38062 0x42 > /sys/bus/i2c/devices/i2c-143/new_device
+        echo ir3584 0x70 > /sys/bus/i2c/devices/i2c-174/new_device
+        echo ir38062 0x49 > /sys/bus/i2c/devices/i2c-174/new_device
         echo isl68137 0x60 > /sys/bus/i2c/devices/i2c-175/new_device
-        echo ir38062 0x19 > /sys/bus/i2c/devices/i2c-175/new_device
-        echo ir38060 0x3C > /sys/bus/i2c/devices/i2c-175/new_device
-        echo ir3584 0x28 > /sys/bus/i2c/devices/i2c-177/new_device
-        echo ir3584 0x3A > /sys/bus/i2c/devices/i2c-177/new_device
-        echo ir3584 0x5B > /sys/bus/i2c/devices/i2c-177/new_device
-        echo ir3584 0x28 > /sys/bus/i2c/devices/i2c-178/new_device
-        echo ir3584 0x3A > /sys/bus/i2c/devices/i2c-178/new_device
-        echo ir38060 0x3C > /sys/bus/i2c/devices/i2c-178/new_device
-        echo ir3584 0x28 > /sys/bus/i2c/devices/i2c-179/new_device
-        echo ir3584 0x3A > /sys/bus/i2c/devices/i2c-179/new_device
-        echo ir3584 0x5B > /sys/bus/i2c/devices/i2c-179/new_device
-        echo ir3584 0x28 > /sys/bus/i2c/devices/i2c-180/new_device
-        echo ir3584 0x3A > /sys/bus/i2c/devices/i2c-180/new_device
-        echo ir38060 0x3C > /sys/bus/i2c/devices/i2c-180/new_device
-        echo ir38060 0x3C > /sys/bus/i2c/devices/i2c-181/new_device
+        echo ir38062 0x49 > /sys/bus/i2c/devices/i2c-175/new_device
+        echo ir38060 0x45 > /sys/bus/i2c/devices/i2c-175/new_device
+        echo ir3584 0x70 > /sys/bus/i2c/devices/i2c-177/new_device
+        echo ir3584 0x50 > /sys/bus/i2c/devices/i2c-177/new_device
+        echo ir3584 0x30 > /sys/bus/i2c/devices/i2c-177/new_device
+        echo ir3584 0x70 > /sys/bus/i2c/devices/i2c-178/new_device
+        echo ir3584 0x50 > /sys/bus/i2c/devices/i2c-178/new_device
+        echo ir38060 0x45 > /sys/bus/i2c/devices/i2c-178/new_device
+        echo ir3584 0x70 > /sys/bus/i2c/devices/i2c-179/new_device
+        echo ir3584 0x50 > /sys/bus/i2c/devices/i2c-179/new_device
+        echo ir3584 0x30 > /sys/bus/i2c/devices/i2c-179/new_device
+        echo ir3584 0x70 > /sys/bus/i2c/devices/i2c-180/new_device
+        echo ir3584 0x50 > /sys/bus/i2c/devices/i2c-180/new_device
+        echo ir38060 0x45 > /sys/bus/i2c/devices/i2c-180/new_device
+        echo ir38060 0x45 > /sys/bus/i2c/devices/i2c-181/new_device
 
         echo "done."
         ;;
