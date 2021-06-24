@@ -549,7 +549,7 @@ static struct fan_info_stu_sysfs psu3_fan_info =
 {
     .prefix = "/sys/bus/i2c/drivers/syscpld/142-000d",
     .front_fan_prefix = "fan1_input",
-    .rear_fan_prefix = "/sys/bus/i2c/drivers/dps1100/159-0059",
+    .rear_fan_prefix = "/sys/bus/i2c/drivers/dps1100/158-0058",
     .pwm_prefix = "fan1_pct",
     .fan_led_prefix = "psu_led_ctrl_en",
     .fan_present_prefix = "psu_3_present",
@@ -576,7 +576,7 @@ static struct fan_info_stu_sysfs psu1_fan_info =
 {
     .prefix = "/sys/bus/i2c/drivers/syscpld/142-000d",
     .front_fan_prefix = "fan1_input",
-    .rear_fan_prefix = "/sys/bus/i2c/drivers/dps1100/161-0059",
+    .rear_fan_prefix = "/sys/bus/i2c/drivers/dps1100/161-0058",
     .pwm_prefix = "fan1_pct",
     .fan_led_prefix = "psu_led_ctrl_en",
     .fan_present_prefix = "psu_1_present",

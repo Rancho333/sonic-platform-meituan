@@ -188,6 +188,8 @@ static ssize_t dps1100_ok(struct i2c_client *client)
 {
     if (client == NULL)
         return 0;
+    else
+        return 1;
 
     // FIXME: This adapter number pass to the the function is not a good
     //        idea, it can be dynamically assigned and cause problem.
