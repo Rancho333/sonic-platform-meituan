@@ -549,7 +549,7 @@ static struct fan_info_stu_sysfs psu3_fan_info =
 {
     .prefix = "/sys/bus/i2c/drivers/syscpld/142-000d",
     .front_fan_prefix = "fan1_input",
-    .rear_fan_prefix = "/sys/bus/i2c/drivers/dps1100/158-0058",
+    .rear_fan_prefix = "/sys/bus/i2c/drivers/dps1100/159-0058",
     .pwm_prefix = "fan1_pct",
     .fan_led_prefix = "psu_led_ctrl_en",
     .fan_present_prefix = "psu_3_present",
@@ -721,7 +721,7 @@ static struct fantray_info_stu_sysfs fantray_info[] =
         .failed = 0,
         .direction = FAN_DIR_INIT,
         .eeprom_fail = 0,
-        .fan1 = fan4_info,
+        .fan1 = fan5_info,
     },
     {
         .name = "PSU1",

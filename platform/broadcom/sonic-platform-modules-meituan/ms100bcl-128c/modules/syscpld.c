@@ -675,24 +675,14 @@ static const i2c_dev_attr_st syscpld_attr_table[] = {
 	  I2C_DEV_ATTR_STORE_DEFAULT,
 	  0x62, 4, 2,
 	},
-	{
-	  "led_alarm_ctrl",
-	  "0x1: 1HZ blink\n"
-	  "0x2: 4HZ blink\n"
-	  "other: not blink",
-	  I2C_DEV_ATTR_SHOW_DEFAULT,
-	  I2C_DEV_ATTR_STORE_DEFAULT,
-	  0x63, 0, 2,
-	},
-	{
-	  "led_alarm_select",
-	  "0x1: green\n"
-	  "0x2: yellow\n"
-	  "other: off",
-	  I2C_DEV_ATTR_SHOW_DEFAULT,
-	  I2C_DEV_ATTR_STORE_DEFAULT,
-	  0x63, 4, 2,
-	},
+    {
+      "fan_led_ctrl_en",
+      "0x0: diable\n"
+      "0x1: enable\n",
+      I2C_DEV_ATTR_SHOW_DEFAULT,
+      I2C_DEV_ATTR_STORE_DEFAULT,
+      0x63, 0, 1,
+    },
 	{
 	  "pwr_cycle",
 	  "0x0: enable\n"
