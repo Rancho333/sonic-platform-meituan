@@ -349,13 +349,12 @@ class Fan(FanBase):
             return 'N/A'
 
         temp_file = FAN_MUX_HWMON_PATH.format(FAN_MAPPING[self.index]['i2c'])
-        return self._api_helper.fru_decode_product_model(self._api_helper.read_eeprom_sysfs(temp_file, "eeprom"))
-        """
+        #return self._api_helper.fru_decode_product_model(self._api_helper.read_eeprom_sysfs(temp_file, "eeprom"))
         raw = self._api_helper.read_eeprom_sysfs(temp_file, "eeprom")
         if raw == None:
             return NULL_VAL
         return raw[45:59]
-        """
+    
     def get_serial(self):
         """
         Retrieves the serial number of the device
@@ -366,13 +365,11 @@ class Fan(FanBase):
             return 'N/A'
 
         temp_file = FAN_MUX_HWMON_PATH.format(FAN_MAPPING[self.index]['i2c'])
-        return self._api_helper.fru_decode_product_serial(self._api_helper.read_eeprom_sysfs(temp_file, "eeprom"))
-        """
+        #return self._api_helper.fru_decode_product_serial(self._api_helper.read_eeprom_sysfs(temp_file, "eeprom"))
         raw = self._api_helper.read_eeprom_sysfs(temp_file, "eeprom")
         if raw == None:
             return NULL_VAL
         return raw[26:44]
-        """
 
     def get_status(self):
         """
