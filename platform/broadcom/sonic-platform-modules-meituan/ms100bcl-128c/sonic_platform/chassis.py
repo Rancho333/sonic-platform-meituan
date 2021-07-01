@@ -23,7 +23,7 @@ except ImportError as e:
 NUM_FAN_TRAY = 5
 NUM_FAN = 2
 NUM_PSU = 4
-NUM_THERMAL = 11
+NUM_THERMAL = 25
 NUM_SFP = 128
 NUM_COMPONENT = 7
 

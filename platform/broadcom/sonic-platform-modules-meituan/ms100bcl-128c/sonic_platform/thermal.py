@@ -34,17 +34,35 @@ class Thermal(ThermalBase):
         ######  Thermal list defined #######
         # (NAME ,  Hwmon name , I2CBUS, I2C_MUX, I2C Address, T/F I2C_MUX, Temp_NUM)
         self.THERMAL_LIST = [
-            ('TEMP_lm75b_i2c_9_48', 'lm75b',  66, 9, '48', True, 1),
-            ('TEMP_lm75b_i2c_67_4d',    'lm75b',  67, 0, '4d', False, 1),
-            ('TEMP_dps1100_i2c_75_58_1',    'dps1100',  75, 0, '58', False, 1),
-            ('TEMP_dps1100_i2c_75_58_2',    'dps1100',  75, 0, '58', False, 2),
-            ('TEMP_dps1100_i2c_76_59_1',    'dps1100',  76, 0, '59', False, 1),
-            ('TEMP_dps1100_i2c_76_59_2',    'dps1100',  76, 0, '59', False, 2),
-            ('TEMP_syscpld_i2c_70_0d',    'syscpld',  70, 0, '0d', False, 1),
-            ('TEMP_core_tmp_1',    'coretemp',  0, 0, '00', False, 1),
-            ('TEMP_core_tmp_2',    'coretemp',  0, 0, '00', False, 2),
-            ('TEMP_core_tmp_3',    'coretemp',  0, 0, '00', False, 3),
-            ('TEMP_core_tmp_4',    'coretemp',  0, 0, '0', False, 4),
+            ('TEMP_lm75b_i2c_9_48', 'lm75b',  138, 9, '48', True, 1),
+            ('TEMP_lm75b_i2c_9_49', 'lm75b',  138, 9, '49', True, 1),
+            ('TEMP_lm75b_i2c_150_48', 'lm75b',  139, 150, '48', True, 1),
+            ('TEMP_lm75b_i2c_150_49', 'lm75b',  139, 150, '49', True, 1),
+            ('TEMP_lm75b_i2c_151_48', 'lm75b',  139, 151, '48', True, 1),
+            ('TEMP_lm75b_i2c_151_49', 'lm75b',  139, 151, '49', True, 1),
+            ('TEMP_lm75b_i2c_165_48', 'lm75b',  140, 165, '48', True, 1),
+            ('TEMP_lm75b_i2c_165_49', 'lm75b',  140, 165, '49', True, 1),
+
+            ('TEMP_lm75b_i2c_139_4d',    'lm75b',  139, 0, '4d', False, 1),
+            ('TEMP_lm75b_i2c_139_4e',    'lm75b',  139, 0, '4e', False, 1),
+            ('TEMP_lm75b_i2c_139_4f',    'lm75b',  139, 0, '4f', False, 1),
+
+            ('TEMP_dps1100_i2c_158_58_1',    'dps1100',  158, 0, '58', False, 1),
+            ('TEMP_dps1100_i2c_158_58_2',    'dps1100',  158, 0, '58', False, 2),
+            ('TEMP_dps1100_i2c_159_58_1',    'dps1100',  159, 0, '58', False, 1),
+            ('TEMP_dps1100_i2c_159_58_1',    'dps1100',  159, 0, '58', False, 2),
+            ('TEMP_dps1100_i2c_160_58_2',    'dps1100',  160, 0, '58', False, 1),
+            ('TEMP_dps1100_i2c_160_58_2',    'dps1100',  160, 0, '58', False, 2),
+            ('TEMP_dps1100_i2c_161_58_2',    'dps1100',  161, 0, '58', False, 1),
+            ('TEMP_dps1100_i2c_161_58_2',    'dps1100',  161, 0, '58', False, 2),
+
+
+            ('TEMP_syscpld_i2c_142_0d',    'syscpld',  142, 0, '0d', False, 1),
+            ('CPU_core_1',    'coretemp',  0, 0, '0', False, 1),
+            ('CPU_core_2',    'coretemp',  0, 0, '0', False, 2),
+            ('CPU_core_3',    'coretemp',  0, 0, '0', False, 3),
+            ('CPU_core_4',    'coretemp',  0, 0, '0', False, 4),
+            ('CPU_core_5',    'coretemp',  0, 0, '0', False, 5),
         ]
 
         if self.THERMAL_LIST[self.thermal_index][1] == 'coretemp':
@@ -81,7 +99,6 @@ class Thermal(ThermalBase):
         for hwmon_path in self.dirpath:
             try:
                 temp_file_path = os.path.join(hwmon_path, temp_file)
-		print temp_file_path
                 raw_temp = self._api_helper.read_txt_file(temp_file_path)
                 temp = float(raw_temp)/1000
                 return float("{:.3f}".format(temp))
