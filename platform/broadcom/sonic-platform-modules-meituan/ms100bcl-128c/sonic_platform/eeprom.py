@@ -34,6 +34,8 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
         self._eeprom_path = "/sys/class/i2c-adapter/i2c-{0}/{0}-00{1}/eeprom".format(i2c, reg)
         super(Eeprom, self).__init__(self._eeprom_path, 0, '', True)
         self._eeprom = self._load_eeprom()
+        # test for lgtm
+        ranchotest
 
     def __parse_output(self, decode_output):
         decode_output.replace('\0', '')
